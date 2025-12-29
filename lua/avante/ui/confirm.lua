@@ -128,7 +128,7 @@ function M:open()
     border = {
       padding = { 0, 1 },
       text = { top = NuiText(" Confirmation ", Highlights.CONFIRM_TITLE) },
-      style = { " ", " ", " ", " ", " ", " ", " ", " " },
+      style = 'single',
     },
     buf_options = {
       filetype = "AvanteConfirm",
@@ -271,12 +271,14 @@ function M:open()
   end, { buffer = popup.bufnr })
 
   vim.keymap.set("n", "h", function()
-    focus_index = 1
+    focus_index = focus_index - 1
+    if focus_index < 1 then focus_index = 3 end
     focus_button()
   end, { buffer = popup.bufnr })
 
   vim.keymap.set("n", "l", function()
-    focus_index = 2
+    focus_index = focus_index + 1
+    if focus_index > 3 then focus_index = 1 end
     focus_button()
   end, { buffer = popup.bufnr })
 
@@ -294,7 +296,7 @@ function M:open()
 
   vim.keymap.set("n", "<CR>", function() click_button() end, { buffer = popup.bufnr })
 
-  vim.api.nvim_buf_set_keymap(popup.bufnr, "n", "<LeftMouse>", "", {
+  vim.api.nvim_buf_set_keymap(popup.bufnr, "n", "<2-LeftMouse>", "", {
     callback = function()
       local pos = vim.fn.getmousepos()
       local row, col = pos["winrow"], pos["wincol"]
