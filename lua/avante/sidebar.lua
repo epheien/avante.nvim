@@ -2442,7 +2442,7 @@ function Sidebar:show_input_hint()
     style = "minimal",
     border = "none",
     focusable = false,
-    zindex = 100,
+    zindex = 49, -- default - 1
   })
 end
 
