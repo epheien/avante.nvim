@@ -373,11 +373,24 @@ end
 ---@type AvanteLLMToolFunc<{ url: string }>
 function M.fetch(input, opts)
   local on_log = opts.on_log
+  local on_complete = opts.on_complete
+  if not on_complete then return nil, "on_complete not provided" end
+  if not input.url then return nil, "url is required" end
   if on_log then on_log("url: " .. input.url) end
-  local Html2Md = require("avante.html2md")
-  local res, err = Html2Md.fetch_md(input.url)
-  if err then return nil, err end
-  return res, nil
+
+  Helpers.confirm("Are you sure you want to fetch from URL:\n" .. input.url, function(ok, reason)
+    if not ok then
+      on_complete(nil, "User declined, reason: " .. (reason or "unknown"))
+      return
+    end
+    local Html2Md = require("avante.html2md")
+    local res, err = Html2Md.fetch_md(input.url)
+    if err then
+      on_complete(nil, err)
+      return
+    end
+    on_complete(res, nil)
+  end, nil, opts.session_ctx, "fetch")
 end
 
 ---@type AvanteLLMToolFunc<{ scope?: string }>
