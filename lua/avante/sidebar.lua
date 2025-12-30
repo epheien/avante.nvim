@@ -3230,7 +3230,7 @@ function Sidebar:render(opts)
 
   self:on_mount(opts)
 
-  self:setup_colors()
+  --self:setup_colors() -- 不使用 WinSeparator 定制机制, 因为容易出问题
 
   if opts.sidebar_post_render then
     self.post_render = opts.sidebar_post_render
