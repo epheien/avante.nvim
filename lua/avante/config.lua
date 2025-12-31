@@ -556,6 +556,10 @@ M._defaults = {
     --- Whether to automatically open files and navigate to lines when ACP agent makes edits
     ---@type boolean
     acp_follow_agent_locations = true,
+    --- Whether to enable eager updates for smoother streaming response rendering
+    --- When true, bypasses the 50ms throttle during streaming for more responsive display
+    ---@type boolean
+    eager_update = false,
   },
   prompt_logger = { -- logs prompts to disk (timestamped, for replay/debugging)
     enabled = true, -- toggle logging entirely

@@ -2747,7 +2747,9 @@ function Sidebar:handle_submit(request)
   local function on_start(_) end
 
   ---@param messages avante.HistoryMessage[]
-  local function on_messages_add(messages) self:add_history_messages(messages) end
+  local function on_messages_add(messages)
+    self:add_history_messages(messages, { eager_update = Config.behaviour.eager_update })
+  end
 
   ---@param state avante.GenerateState
   local function on_state_change(state)
