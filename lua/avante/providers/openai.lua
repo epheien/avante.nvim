@@ -328,6 +328,7 @@ function M:add_text_message(ctx, text, state, opts)
     uuid = ctx.content_uuid,
     original_content = ctx.content,
   })
+  msg.delta_content = text
   ctx.content_uuid = msg.uuid
   local msgs = { msg }
   local xml_content = ctx.content

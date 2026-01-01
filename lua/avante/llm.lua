@@ -2,7 +2,7 @@ local api = vim.api
 local fn = vim.fn
 local uv = vim.uv
 
-local curl = require("plenary.curl")
+local curl = require("avante.libs.curl")
 local ACPClient = require("avante.libs.acp_client")
 
 local Utils = require("avante.utils")

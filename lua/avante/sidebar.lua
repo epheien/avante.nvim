@@ -1734,6 +1734,55 @@ Sidebar.throttled_update_content = Utils.throttle(function(self, ...)
   self:update_content(unpack(args))
 end, 50)
 
+---@param new_messages avante.HistoryMessage[] Messages to render incrementally
+function Sidebar:update_content_incremental(new_messages)
+  if not Utils.is_valid_container(self.containers.result) then return end
+  if not new_messages or #new_messages == 0 then return end
+
+  local bufnr = self.containers.result.bufnr
+  local should_auto_scroll = self:should_auto_scroll()
+
+  -- Get buffer end position
+  local line_count = api.nvim_buf_line_count(bufnr)
+  local last_line = line_count - 1
+  local last_line_content = api.nvim_buf_get_lines(bufnr, last_line, last_line + 1, false)[1] or ""
+  local last_col = #last_line_content
+
+  -- Collect delta content from new messages
+  local delta_texts = {}
+  for _, message in ipairs(new_messages) do
+    -- Use delta_content if available (incremental), otherwise fall back to full content
+    local content = message.delta_content or ""
+    if content ~= "" and content ~= vim.NIL then table.insert(delta_texts, content) end
+  end
+
+  -- Append new content at buffer end
+  if #delta_texts > 0 then
+    Utils.unlock_buf(bufnr)
+
+    -- Combine all deltas and insert at buffer end
+    local combined_text = table.concat(delta_texts, "")
+
+    -- Split by lines for proper insertion
+    local text_to_insert = vim.split(combined_text, "\n", { plain = true })
+
+    if #text_to_insert > 0 then
+      api.nvim_buf_set_text(bufnr, last_line, last_col, last_line, last_col, text_to_insert)
+    end
+
+    Utils.lock_buf(bufnr)
+  end
+
+  -- Scroll to end if needed
+  if should_auto_scroll then Utils.buf_scroll_to_end(bufnr) end
+
+  -- Render state and buttons (throttled to 1 second)
+  vim.schedule(function()
+    self:render_state()
+    self:render_tool_use_control_buttons()
+  end)
+end
+
 ---@param content string concatenated content of the buffer
 ---@param opts? {focus?: boolean, scroll?: boolean, backspace?: integer, callback?: fun(): nil} whether to focus the result view
 function Sidebar:update_content(content, opts)
@@ -2321,7 +2370,9 @@ function Sidebar:add_history_messages(messages, opts)
     end
   end
   local last_message = messages[#messages]
+  local is_generating = false
   if last_message then
+    is_generating = last_message.state == "generating"
     if History.Helpers.is_tool_use_message(last_message) then
       self.current_state = "tool calling"
     elseif History.Helpers.is_thinking_message(last_message) then
@@ -2330,6 +2381,13 @@ function Sidebar:add_history_messages(messages, opts)
       self.current_state = "generating"
     end
   end
+
+  if Config.behaviour.incremental_render and is_generating and last_message.delta_content then
+    pcall(function() self:update_content_incremental(messages) end)
+    return
+  end
+
+  -- Standard full rendering
   if opts and opts.eager_update then
     pcall(function() self:update_content("") end)
     return

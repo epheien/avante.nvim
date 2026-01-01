@@ -560,6 +560,11 @@ M._defaults = {
     --- When true, bypasses the 50ms throttle during streaming for more responsive display
     ---@type boolean
     eager_update = false,
+    --- Whether to enable incremental rendering during streaming
+    --- When true, only renders new content at buffer end instead of full replacement
+    --- This provides much smoother streaming for long conversations
+    ---@type boolean
+    incremental_render = false,
   },
   prompt_logger = { -- logs prompts to disk (timestamped, for replay/debugging)
     enabled = true, -- toggle logging entirely
