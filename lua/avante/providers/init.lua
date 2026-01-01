@@ -237,6 +237,12 @@ function M.refresh(provider_name)
     E.setup({ provider = p, refresh = true })
   end
   Utils.info("Switch to provider: " .. provider_name, { once = true, title = "Avante" })
+
+  -- Update sidebar title to reflect new provider
+  vim.schedule(function()
+    local sidebar = require("avante").get()
+    if sidebar and sidebar:is_open() then sidebar:render_result() end
+  end)
 end
 
 ---@param opts AvanteProvider | AvanteSupportedProvider | AvanteProviderFunctor | AvanteBedrockProviderFunctor

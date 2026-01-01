@@ -1024,7 +1024,7 @@ end
 
 function Sidebar:render_result()
   if not Utils.is_valid_container(self.containers.result) then return end
-  local header_text = Utils.icon("󰭻 ") .. "Avante"
+  local header_text = Utils.icon("󰭻 ") .. "Avante" .. " [" .. self:get_model_title() .. "]"
   self:render_header(
     self.containers.result.winid,
     self.containers.result.bufnr,
@@ -2212,6 +2212,23 @@ function Sidebar:update_statusline(virt_line, hl)
     math.floor((vim.api.nvim_win_get_width(self.containers.result.winid) - vim.fn.strdisplaywidth(virt_line)) / 2)
   local padding_text = string.rep("─", padding)
   vim.wo[self.containers.result.winid].statusline = padding_text .. "%#" .. hl .. "#" .. virt_line .. "%*"
+end
+
+-- 获取当前模型标题文本
+function Sidebar:get_model_title()
+  local provider = Config.provider
+
+  -- Check if it's an ACP provider
+  local acp_provider = Config.acp_providers[provider]
+  if acp_provider then return string.format("ACP: %s", provider) end
+
+  -- For non-ACP providers, get the model from actual config
+  local model = "unknown"
+  if Config._options and Config._options.providers and Config._options.providers[provider] then
+    model = Config._options.providers[provider].model or "unknown"
+  end
+
+  return string.format("%s/%s", provider, model)
 end
 
 ---@param recursive boolean

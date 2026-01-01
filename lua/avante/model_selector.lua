@@ -137,6 +137,12 @@ function M.open()
     Utils.info("Switched to model: " .. choice.name)
     -- Persist last used provider and model
     Config.save_last_model(choice.model, choice.provider_name)
+
+    -- Update sidebar title to reflect new model
+    vim.schedule(function()
+      local sidebar = require("avante").get()
+      if sidebar and sidebar:is_open() then sidebar:render_result() end
+    end)
   end
 
   local selector = Selector:new({
