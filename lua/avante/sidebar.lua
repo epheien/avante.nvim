@@ -1778,7 +1778,7 @@ function Sidebar:update_content_incremental(new_messages)
 
   -- Render state and buttons (throttled to 1 second)
   vim.schedule(function()
-    self:render_state()
+    self:debounce_render_state()
     self:render_tool_use_control_buttons()
   end)
 end
@@ -2200,13 +2200,28 @@ function Sidebar:clear_state()
   end
   self.state_extmark_id = nil
   self.state_spinner_idx = 1
-  if self.state_timer then self.state_timer:stop() end
+  if self.state_timer then
+    self.state_timer:stop()
+    self.state_timer = nil
+  end
 end
 
-function Sidebar:render_state()
+-- 设置 statusline 显示动态内容
+function Sidebar:update_statusline(virt_line, hl)
+  local padding =
+    math.floor((vim.api.nvim_win_get_width(self.containers.result.winid) - vim.fn.strdisplaywidth(virt_line)) / 2)
+  local padding_text = string.rep("─", padding)
+  vim.wo[self.containers.result.winid].statusline = padding_text .. "%#" .. hl .. "#" .. virt_line .. "%*"
+end
+
+---@param recursive boolean
+function Sidebar:render_state(recursive)
+  if not recursive and self.state_timer then return end
   if not Utils.is_valid_container(self.containers.result) then return end
-  if not self.current_state then return end
-  local lines = vim.api.nvim_buf_get_lines(self.containers.result.bufnr, 0, -1, false)
+  if not self.current_state then
+    self.state_timer = vim.defer_fn(function() self:render_state(true) end, 160)
+    return
+  end
   if self.state_extmark_id then
     api.nvim_buf_del_extmark(self.containers.result.bufnr, STATE_NAMESPACE, self.state_extmark_id)
   end
@@ -2237,19 +2252,8 @@ function Sidebar:render_state()
     virt_line = " " .. spinner_char .. " " .. self.current_state .. " "
   end
 
-  local win_width = api.nvim_win_get_width(self.containers.result.winid)
-  local padding = math.floor((win_width - vim.fn.strdisplaywidth(virt_line)) / 2)
-  local centered_virt_lines = {
-    { { string.rep(" ", padding) }, { virt_line, hl } },
-  }
-
-  local line_num = math.max(0, #lines - 2)
-  self.state_extmark_id = api.nvim_buf_set_extmark(self.containers.result.bufnr, STATE_NAMESPACE, line_num, 0, {
-    virt_lines = centered_virt_lines,
-    hl_eol = true,
-    hl_mode = "combine",
-  })
-  self.state_timer = vim.defer_fn(function() self:render_state() end, 160)
+  self:update_statusline(virt_line, hl)
+  self.state_timer = vim.defer_fn(function() self:render_state(true) end, 160)
 end
 
 function Sidebar:init_current_project(args, cb)
@@ -2264,6 +2268,8 @@ You are a responsible senior development engineer, and you are about to leave yo
   if self.containers.selected_files then self.containers.selected_files:unmount() end
   vim.api.nvim_exec_autocmds("User", { pattern = "AvanteInputSubmitted", data = { request = user_input } })
 end
+
+Sidebar.debounce_render_state = Utils.debounce(function(self) self:render_state() end, 160)
 
 function Sidebar:compact_history_messages(args, cb)
   local history_memory = self.chat_history.memory
@@ -3250,6 +3256,7 @@ function Sidebar:render(opts)
     win_options = vim.tbl_deep_extend("force", base_win_options, {
       wrap = Config.windows.wrap,
       fillchars = Config.windows.fillchars,
+      statusline = "─",
     }),
     size = {
       width = self:get_result_container_width(),
