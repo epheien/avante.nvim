@@ -532,6 +532,7 @@ function M.curl(opts)
 
   ---@type string
   local current_event_state = nil
+  ---@type avante.StreamContext
   local turn_ctx = {}
   turn_ctx.turn_id = Utils.uuid()
 

@@ -2356,6 +2356,7 @@ end
 function Sidebar:add_history_messages(messages, opts)
   local history_messages = History.get_history_messages(self.chat_history)
   messages = vim.islist(messages) and messages or { messages }
+  if messages[1].done then return end
   for _, message in ipairs(messages) do
     if message.is_user_submission then
       message.provider = Config.provider

@@ -327,8 +327,9 @@ function M:add_text_message(ctx, text, state, opts)
     state = state,
     uuid = ctx.content_uuid,
     original_content = ctx.content,
+    delta_content = text,
+    done = ctx.done,
   })
-  msg.delta_content = text
   ctx.content_uuid = msg.uuid
   local msgs = { msg }
   local xml_content = ctx.content
@@ -488,9 +489,16 @@ function M.transform_openai_usage(usage)
   return res
 end
 
+-- curl.on_stdout => llm.curl.parse_stream_data => M:parse_response
+---@param ctx avante.StreamContext
+---@param data_stream string
+---@param _ string
+---@param opts AvanteHandlerOptions
 function M:parse_response(ctx, data_stream, _, opts)
   if data_stream:match('"%[DONE%]":') or data_stream == "[DONE]" then
     self:finish_pending_messages(ctx, opts)
+    -- mark this message is done
+    ctx.done = true
     if ctx.tool_use_map and vim.tbl_count(ctx.tool_use_map) > 0 then
       ctx.tool_use_map = {}
       opts.on_stop({ reason = "tool_use" })

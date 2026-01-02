@@ -17,7 +17,6 @@ M.__index = M
 ---@field is_user_submission? boolean
 ---@field just_for_display? boolean
 ---@field visible? boolean
----@field delta_content? string
 ---
 ---@param role "user" | "assistant"
 ---@param content AvanteLLMMessageContentItem

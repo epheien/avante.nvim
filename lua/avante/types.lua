@@ -73,7 +73,7 @@ vim.g.avante_login = vim.g.avante_login
 
 ---@class AvanteHandlerOptions: table<[string], string>
 ---@field on_start AvanteLLMStartCallback
----@field on_chunk AvanteLLMChunkCallback
+---@field on_chunk? AvanteLLMChunkCallback
 ---@field on_stop AvanteLLMStopCallback
 ---@field on_messages_add? fun(messages: avante.HistoryMessage[]): nil
 ---@field on_state_change? fun(state: avante.GenerateState): nil
@@ -118,6 +118,21 @@ vim.g.avante_login = vim.g.avante_login
 ---@field is_calling boolean | nil
 ---@field original_content AvanteLLMMessageContent | nil
 ---@field acp_tool_call? avante.acp.ToolCall
+---@field delta_content? string
+---@field done? boolean indicates that message is done (received "data: [DONE]").
+
+---@class avante.StreamContext
+---@field turn_id string
+---@field content_uuid string nil
+---@field content? string
+---@field reasoning_content? string
+---@field tool_use_map? []{name: string, id: string, input_json: string} index is '1', '2', ...
+---@field returned_think_start_tag? boolean
+---@field returned_think_end_tag? boolean
+---@field last_think_content? string
+---@field reasonging_content_uuid? string
+---@field last_response_id? string
+---@field done? boolean
 
 ---@class AvanteLLMToolResult
 ---@field tool_name string
