@@ -242,7 +242,7 @@ function M.func(input, opts)
   end
   if not opts.on_complete then return false, "on_complete not provided" end
   Helpers.confirm(
-    "Are you sure you want to run the command: `" .. input.command .. "` in the directory: " .. abs_path,
+    "CWD: " .. abs_path .. "\nCMD: " .. input.command,
     function(ok, reason)
       if not ok then
         opts.on_complete(false, "User declined, reason: " .. (reason and reason or "unknown"))
