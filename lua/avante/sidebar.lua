@@ -3578,7 +3578,7 @@ function Sidebar:create_todos_container()
 end
 
 function Sidebar:adjust_layout()
-  self:adjust_result_container_layout()
+  --self:adjust_result_container_layout()
   self:adjust_todos_container_layout()
   self:adjust_selected_code_container_layout()
   self:adjust_selected_files_container_layout()
