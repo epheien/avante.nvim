@@ -994,8 +994,8 @@ local base_win_options = {
   statusline = vim.o.laststatus == 0 and " " or "",
 }
 
-function Sidebar:render_header(winid, bufnr, header_text, hl, reverse_hl)
-  if not Config.windows.sidebar_header.enabled then return end
+function Sidebar:render_header(winid, bufnr, header_text, hl, reverse_hl, always)
+  if not always and not Config.windows.sidebar_header.enabled then return end
   if not bufnr or not api.nvim_buf_is_valid(bufnr) then return end
 
   local function format_segment(text, highlight) return "%#" .. highlight .. "#" .. text end
@@ -1030,7 +1030,8 @@ function Sidebar:render_result()
     self.containers.result.bufnr,
     header_text,
     Highlights.TITLE,
-    Highlights.REVERSED_TITLE
+    Highlights.REVERSED_TITLE,
+    true
   )
 end
 
