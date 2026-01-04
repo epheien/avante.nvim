@@ -681,7 +681,7 @@ M._defaults = {
     ---@alias AvantePosition "right" | "left" | "top" | "bottom" | "smart"
     ---@type AvantePosition
     position = "right",
-    fillchars = "eob: ,stl:─,stlnc:─",
+    fillchars = "eob: ",
     wrap = true, -- similar to vim.o.wrap
     width = 30, -- default % based on available width in vertical layout
     height = 30, -- default % based on available height in horizontal layout
