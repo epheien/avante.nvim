@@ -2404,6 +2404,7 @@ function Sidebar:add_history_messages(messages, opts)
       self.current_state = "thinking"
     else
       self.current_state = "generating"
+      --require('utils').log_to_file(vim.inspect(last_message))
     end
   end
 
@@ -2492,6 +2493,14 @@ function Sidebar:get_input_float_window_row()
   local winline = Utils.winline(self.containers.input.winid)
   if winline >= win_height - 1 then return 0 end
   return winline
+end
+
+---@return integer
+function Sidebar:get_tokens_usage()
+  local input_value = table.concat(api.nvim_buf_get_lines(self.containers.input.bufnr, 0, -1, false), "\n")
+  if self.token_count == nil then self:initialize_token_count() end
+  local input_tokens = input_value ~= "" and Utils.tokens.calculate_tokens(input_value) or 0
+  return self.token_count + input_tokens
 end
 
 -- Create a floating window as a hint
@@ -2878,6 +2887,7 @@ function Sidebar:handle_submit(request)
   ---@type AvanteLLMStopCallback
   local function on_stop(stop_opts)
     self.is_generating = false
+    --require('utils').log_to_file('on_stop', vim.inspect(stop_opts))
 
     pcall(function()
       ---remove keymaps
