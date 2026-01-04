@@ -3477,7 +3477,7 @@ function Sidebar:create_selected_files_container()
   self.containers.selected_files:map("n", Config.mappings.sidebar.remove_file, function()
     local line_number = api.nvim_win_get_cursor(self.containers.selected_files.winid)[1]
     remove_file(line_number)
-  end, { noremap = true, silent = true })
+  end, { noremap = true, silent = true, nowait = true })
 
   self.containers.selected_files:map("x", Config.mappings.sidebar.remove_file, function()
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false)
