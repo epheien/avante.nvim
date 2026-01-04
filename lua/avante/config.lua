@@ -736,6 +736,9 @@ M._defaults = {
       prefix = "> ",
       height = 8, -- Height of the input window in vertical layout
     },
+    input_hint = {
+      enabled = true,
+    },
     selected_files = {
       height = 6, -- Maximum height of the selected files window
     },

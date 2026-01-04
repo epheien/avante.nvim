@@ -2505,6 +2505,7 @@ end
 
 -- Create a floating window as a hint
 function Sidebar:show_input_hint()
+  if not Config.windows.input_hint.enabled then return end
   self:close_input_hint() -- Close the existing hint window
 
   local hint_text = (fn.mode() ~= "i" and Config.mappings.submit.normal or Config.mappings.submit.insert) .. ": submit"
